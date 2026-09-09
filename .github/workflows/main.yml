@@ -21,15 +21,26 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Generate Dummy Keystore & Setup Keys
+        run: |
+          keytool -genkey -v -keystore release.keystore -alias debugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass debugpassword123 -keypass debugpassword123 -dname "CN=Budgiegram, OU=Dev, O=Budgie, L=City, S=State, C=US"
+          cat << 'EOF' > API_KEYS
+          APP_ID = 6
+          APP_HASH = "eb06d4abfb49dc3eeb1aeb98ae0f581e"
+          MAPS_V2_API = "abcdef12345678"
+          SIGNING_KEY_PASSWORD = "debugpassword123"
+          SIGNING_KEY_ALIAS = "debugkey"
+          SIGNING_KEY_STORE_PASSWORD = "debugpassword123"
+          EOF
+
       - name: Make gradlew executable
         run: chmod +x gradlew
 
       - name: Build APK
-        run: ./gradlew assembleAfatDebug --stacktrace
+        run: ./gradlew assembleAfatDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Budgiegram-APK
-          path: "**
-          /*.apk"
+          path: "TMessagesProj/build/outputs/apk/**/*.apk"
